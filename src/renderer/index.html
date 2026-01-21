@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twitch Viewer Bot</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="url(#gradient)" />
+                    <path d="M16 8L20 12L16 16L12 12L16 8Z" fill="white" />
+                    <path d="M16 16L20 20L16 24L12 20L16 16Z" fill="white" opacity="0.7" />
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="32" y2="32">
+                            <stop offset="0%" stop-color="#9146FF" />
+                            <stop offset="100%" stop-color="#6441A5" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1>Twitch Viewer Bot</h1>
+            </div>
+            <div class="version">v2.0.0</div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Configuration Panel -->
+            <div class="panel config-panel">
+                <h2>⚙️ Yapılandırma</h2>
+
+                <div class="form-group">
+                    <label for="proxy-select">Bağlantı Modu</label>
+                    <select id="proxy-select" class="input-field">
+                        <optgroup label="📡 Bağlantı Türü">
+                            <option value="0">🚫 Direkt Bağlantı (Proxy Yok - VPN Önerilir)</option>
+                            <option value="100">🌐 API Proxy (Otomatik Liste Çekme)</option>
+                            <option value="200">🛡️ Urban VPN (Extension Otomasyonu) - YENİ!</option>
+                        </optgroup>
+                        <optgroup label="🔗 Web Proxy Siteleri">
+                            <option value="1">🌟 BlockAway (Önerilen)</option>
+                            <option value="2">CroxyProxy</option>
+                            <option value="3">CroxyProxy Rocks</option>
+                            <option value="4">Croxy Network</option>
+                            <option value="5">Croxy Org</option>
+                            <option value="6">YouTube Unblocked</option>
+                            <option value="7">CroxyProxy Net</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="channel-input">Twitch Kanal Adı</label>
+                    <input type="text" id="channel-input" class="input-field" placeholder="örn: shroud"
+                        autocomplete="off" />
+                </div>
+
+                <div class="form-group">
+                    <label for="viewer-count">
+                        İzleyici Sayısı: <span id="viewer-count-display">10</span>
+                    </label>
+                    <input type="range" id="viewer-count" class="slider" min="1" max="50" value="10" />
+                    <div class="slider-labels">
+                        <span>1</span>
+                        <span>50</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="start-btn" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M5 3L17 10L5 17V3Z" />
+                        </svg>
+                        Başlat
+                    </button>
+                    <button id="stop-btn" class="btn btn-danger" disabled>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                            <rect x="4" y="4" width="12" height="12" rx="2" />
+                        </svg>
+                        Durdur
+                    </button>
+                </div>
+            </div>
+
+            <!-- Proxy Status Panel -->
+            <div class="panel proxy-status-panel" id="proxy-status-panel">
+                <h2>🌐 Proxy Durumu</h2>
+                <div class="proxy-status-grid">
+                    <div class="proxy-stat">
+                        <div class="proxy-stat-value" id="proxy-fetched">0</div>
+                        <div class="proxy-stat-label">Çekilen</div>
+                    </div>
+                    <div class="proxy-stat">
+                        <div class="proxy-stat-value" id="proxy-testing">0</div>
+                        <div class="proxy-stat-label">Test Edilen</div>
+                    </div>
+                    <div class="proxy-stat">
+                        <div class="proxy-stat-value proxy-working" id="proxy-working">0</div>
+                        <div class="proxy-stat-label">Çalışan ✓</div>
+                    </div>
+                    <div class="proxy-stat">
+                        <div class="proxy-stat-value proxy-failed" id="proxy-failed">0</div>
+                        <div class="proxy-stat-label">Başarısız ✗</div>
+                    </div>
+                </div>
+                <div class="proxy-status-text" id="proxy-status-text">Bekleniyor...</div>
+                <div class="proxy-progress-bar" id="proxy-progress-bar" style="display: none;">
+                    <div class="proxy-progress-fill" id="proxy-progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- Status Panel -->
+            <div class="panel status-panel">
+                <h2>📊 Durum</h2>
+
+                <div class="status-grid">
+                    <div class="status-item">
+                        <div class="status-label">Durum</div>
+                        <div class="status-value" id="bot-status">
+                            <span class="status-badge status-idle">Beklemede</span>
+                        </div>
+                    </div>
+
+                    <div class="status-item">
+                        <div class="status-label">Aktif İzleyici</div>
+                        <div class="status-value" id="active-viewers">0</div>
+                    </div>
+
+                    <div class="status-item">
+                        <div class="status-label">Kanal</div>
+                        <div class="status-value" id="current-channel">-</div>
+                    </div>
+
+                    <div class="status-item">
+                        <div class="status-label">Çalışma Süresi</div>
+                        <div class="status-value" id="uptime">00:00:00</div>
+                    </div>
+
+                    <div class="status-item">
+                        <div class="status-label">Hatalar</div>
+                        <div class="status-value" id="error-count">0</div>
+                    </div>
+
+                    <div class="status-item">
+                        <div class="status-label">Proxy</div>
+                        <div class="status-value" id="current-proxy">-</div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-container" id="progress-container" style="display: none;">
+                    <div class="progress-label">İzleyiciler Gönderiliyor...</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div class="progress-text" id="progress-text">0 / 0</div>
+                </div>
+            </div>
+
+            <!-- Bot Preview Panel -->
+            <div class="panel bot-preview-panel" id="bot-preview-panel" style="display: none;">
+                <h2>🎥 Bot Önizleme</h2>
+                <div id="bot-grid" class="bot-grid">
+                    <!-- Bot screenshots will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Warning Panel -->
+            <div class="panel warning-panel">
+                <div class="warning-icon">⚠️</div>
+                <div class="warning-content">
+                    <h3>Önemli Uyarı</h3>
+                    <p>Bu uygulama sadece eğitim amaçlıdır. Twitch'in hizmet şartlarını ihlal edebilir ve hesap
+                        banlanmasına yol açabilir. Kullanımdan doğacak sorumluluk size aittir.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Made with ❤️ for educational purposes only</p>
+        </footer>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+
+</html>
