@@ -1,4 +1,4 @@
-# Project Name
+# Twitch Bot
 
 This software is developed strictly for **educational and testing purposes**.
 
@@ -11,3 +11,4 @@ Please read this section carefully before using the software:
 * **Modifications:** We accept no liability for actions taken using either the original source code or any modified versions of it.
 
 By using this software, you acknowledge that you are solely responsible for compliance with any relevant laws and terms of service.
+
